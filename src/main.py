@@ -1,18 +1,18 @@
-import csv
-from dotenv import load_dotenv
+import sys
 import os
 
-load_dotenv()
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'src')))
+from functions import sin, cos, sec, cot, ln, log_3, log_5, log_10
+from decimal import Decimal, getcontext
 
-USE_STUBS = os.getenv("USE_STUBS", "false").lower() == "true"
-
-if USE_STUBS:
-    from stubs import sin, cos, sec, cot, ln, log_3, log_5, log_10
-else:
-    from functions import sin, cos, sec, cot, ln, log_3, log_5, log_10
+getcontext().prec = 6
 
 def system_function(x):
-    x_rounded = round(x, 2)
+    x_rounded = Decimal(x).quantize(Decimal('0.0001'))
+
+    if x_rounded == 0:
+        raise ValueError("Ошибка: x = 0 приводит к делению на ноль")
+
     if x_rounded < 0:
         numerator = (sin(x) - cos(x)) + sin(x) + cos(x)
         denominator = sec(x)
@@ -22,25 +22,9 @@ def system_function(x):
     else:
         denom = log_5(x)
         if abs(denom) < 1e-12:
-            raise ValueError("Деление на ноль в log_5(x)")
+            raise ValueError(f"Ошибка: log_5({x}) приводит к делению на ноль")
+
         part1 = (ln(x) / denom) * (log_3(x) ** 3)
         part2 = (ln(x) + denom) - (log_10(x) ** 3)
         part3 = log_3(x) / log_10(x)
         return (part1 + part2) * part3
-
-
-
-def write_results_to_csv(filename, start, end, step, delimiter=','):
-    with open(filename, mode='w', newline='') as csvfile:
-        writer = csv.writer(csvfile, delimiter=delimiter)
-
-        x = start
-        while x <= end:
-            try:
-                y = system_function(x)
-            except Exception as e:
-                y = str(e)
-            writer.writerow([x, y])
-            x += step
-
-write_results_to_csv('output.csv', -2.0, 2.0, 0.1, delimiter=';')

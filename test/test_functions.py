@@ -14,12 +14,12 @@ def test_sin_cos():
 def test_sec_valid():
     assert math.isclose(sec(0), 1, abs_tol=1e-9)
     with pytest.raises(ValueError):
-        sec(math.pi / 2)  # cos(pi/2) ≈ 0, sec не определён
+        sec(math.pi / 2)
 
 def test_cot_valid():
     assert math.isclose(cot(math.pi / 4), 1, abs_tol=1e-9)
     with pytest.raises(ValueError):
-        cot(0)  # tan(0) = 0, cot не определён
+        cot(0)
 
 def test_ln_valid():
     assert math.isclose(ln(math.e), 1, abs_tol=1e-9)
